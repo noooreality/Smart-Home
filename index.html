@@ -19,15 +19,14 @@
       --radius: 18px;
       --maxw: 1200px;
       --shadow: 0 20px 40px rgba(0,0,0,.45);
-      --glow-soft: 0 0 0px rgba(255,213,77,0), 0 0 0px rgba(96,165,250,0);
     }
 
     @media (prefers-color-scheme: light) {
       :root {
-        --bg: #0a0a0b;
-        --fg: #f3f4f6;
-        --card: #101113;
-        --stroke: #1c1d20;
+        --bg: #fafafa;
+        --fg: #0a0a0a;
+        --card: #ffffff;
+        --stroke: #e6e7eb;
       }
     }
 
@@ -50,14 +49,10 @@
     .container { width: min(100%, calc(var(--maxw) + 48px)); margin-inline: auto; padding-inline: 24px }
     .section { padding: clamp(56px, 8vw, 120px) 0; position: relative }
 
-    /* ====== Boot Darkness (Initial Black + Light‑On Sequence) ====== */
-    .boot {
-      position: fixed; inset: 0; background:#000; z-index: 9999; display:grid; place-items:center;
-      transition: opacity .8s ease, visibility .8s ease;
-    }
-    .boot__hint { color:#7c7c80; font-size:14px; letter-spacing:.3px; opacity:.0 }
+    /* ====== Boot Darkness (nur sanftes Ausblenden) ====== */
+    .boot { position: fixed; inset: 0; background:#000; z-index: 9999; display:grid; place-items:center; transition: opacity .9s ease, visibility .9s ease }
 
-    /* Soft vignette glow that will later remain for the site */
+    /* Soft Vignette */
     .vignette::before{
       content:""; position: fixed; inset:-10vmax; pointer-events:none; z-index:1;
       background: radial-gradient(60% 60% at 50% 20%, rgba(255,213,77,.14), rgba(96,165,250,.08) 35%, rgba(0,0,0,.0) 50%),
@@ -65,7 +60,7 @@
       mix-blend-mode: screen;
     }
 
-    /* ====== Navbar with Light‑Sweep reveal ====== */
+    /* ====== Navbar mit Demo‑Glow‑Animation (goldener Unterstrich) ====== */
     .navwrap { position: sticky; top:0; z-index: 50; border-bottom:1px solid var(--stroke); backdrop-filter: blur(8px);
       background: linear-gradient(180deg, rgba(10,10,11,.75), rgba(10,10,11,.55));
     }
@@ -74,24 +69,75 @@
     .brand svg { width:26px; height:26px; filter: drop-shadow(0 0 12px rgba(255,213,77,.25)); }
 
     .nav { display:flex; gap: clamp(14px, 2.2vw, 28px); align-items:center; }
-    .nav a { position:relative; padding:10px 8px; font-weight:600; color:#b8bbc2; opacity:0; transition: color .25s ease }
-    .nav a.on { opacity:1; color:var(--fg) }
-    /* (alte Variante) Light-sweep Box deaktiviert */
-    .nav a.on::after{ display:none }
-
-    /* Text‑only light sweep: gradient clipped inside glyphs */
-    .nav a.sweep { color: transparent; -webkit-background-clip: text; background-clip: text; background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 44%, #ffffff 50%, rgba(255,255,255,.55) 56%, rgba(255,255,255,0) 100%); background-size: 250% 100%; animation: textSweep 1100ms cubic-bezier(.22,.61,.36,1) }
-    @keyframes textSweep { from { background-position: -120% 0 } to { background-position: 120% 0 } }
+    .nav a { position:relative; padding:10px 8px; font-weight:600; color:#cfd1d5; transition: color .2s ease }
+    .nav a:hover, .nav a:focus { color: var(--fg) }
+    /* Demo‑Stil: Licht‑Glow unter dem Link */
+    .nav a::after {
+      content:""; position:absolute; left:50%; bottom:4px; translate:-50% 0; width:0; height:2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      box-shadow: 0 0 16px var(--gold);
+      transition: width .35s ease;
+    }
+    .nav a:hover::after, .nav a:focus::after { width: 80% }
 
     .cta { display:inline-flex; align-items:center; gap:10px; background: linear-gradient(180deg,#ffd54d,#f6c62a);
-      color:#151515; border-radius:999px; padding:10px 16px; font-weight:700; box-shadow: 0 6px 24px rgba(255,213,77,.25);
+      color: #000 !important; border-radius:999px; padding:10px 16px; font-weight:700; box-shadow: 0 6px 24px rgba(255,213,77,.25);
       transform: translateZ(0); border:0; cursor:pointer }
+      /* Подсветка при наведении + чёткий фокус */
+.cta {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .25s ease, transform .18s ease;
+}
+.cta:hover { 
+  box-shadow: 0 10px 28px rgba(255,213,77,.32); 
+  transform: translateY(-1px);
+}
+.cta:active { 
+  transform: translateY(1px); 
+  box-shadow: 0 3px 12px rgba(255,213,77,.18);
+}
+.cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,213,77,.55), 0 10px 28px rgba(255,213,77,.32);
+}
+
+/* Световой «блик» при ховере (sweep) */
+.cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.35) 10%, rgba(255,255,255,0) 20%);
+  transform: translateX(-120%);
+  pointer-events: none;
+  filter: blur(1px);
+}
+.cta:hover::before { 
+  animation: sheen 900ms ease; 
+}
+@keyframes sheen { 
+  to { transform: translateX(120%); } 
+}
+
+/* Волна при клике (ripple) */
+.cta .ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 8px; height: 8px;
+  background: rgba(0,0,0,.25);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: .35;
+  animation: ripple .6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to { transform: translate(-50%, -50%) scale(22); opacity: 0; }
+}
+
     .cta:active { transform: translateY(1px) }
 
-    /* ====== Mobile behavior: hide nav on phones, center brand ====== */
-    .brand span.sweep { color: transparent; -webkit-background-clip: text; background-clip: text; background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 44%, #ffffff 50%, rgba(255,255,255,.55) 56%, rgba(255,255,255,0) 100%); background-size: 250% 100%; animation: textSweep 1100ms cubic-bezier(.22,.61,.36,1) }
     @media (max-width: 820px){
-      .nav { display:none !important }
+      .nav { display:none }
       .navwrap nav { justify-content: center }
       .brand { margin: 0 auto }
     }
@@ -101,11 +147,8 @@
     .hero h1 { font-size: clamp(28px, 6vw, 56px); line-height:1.06; letter-spacing:.2px; margin:0 0 16px }
     .hero p { color:#c8c9ce; font-size: clamp(16px, 2vw, 20px); margin:0 0 28px }
 
-    /* Section edge‑glow frame */
-    .frame {
-      position: relative; border-radius: var(--radius); background: var(--card); border:1px solid var(--stroke);
-      box-shadow: var(--shadow);
-    }
+    /* Abschnitt‑Rahmen mit Edge‑Glow */
+    .frame { position: relative; border-radius: var(--radius); background: var(--card); border:1px solid var(--stroke); box-shadow: var(--shadow) }
     .frame::before{
       content:""; position:absolute; inset:-1px; border-radius: calc(var(--radius) + 1px);
       padding:1px; background: conic-gradient(from 180deg, rgba(255,213,77,.0), rgba(255,213,77,.45), rgba(96,165,250,.5), rgba(255,213,77,.0));
@@ -114,7 +157,7 @@
     }
     .frame.lit::before { opacity:.7 }
 
-    /* ====== Features Grid ====== */
+    /* Grid */
     .grid { display:grid; gap:18px; grid-template-columns: repeat(12, 1fr) }
     .col-4 { grid-column: span 4 }
     .col-6 { grid-column: span 6 }
@@ -125,29 +168,26 @@
     .card h3 { margin:6px 0 8px; font-size:20px }
     .muted { color: var(--muted) }
 
-    /* Icon circle with inner glow */
+    /* Icon */
     .ico { width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
       background: radial-gradient(60% 60% at 50% 50%, rgba(255,213,77,.35), rgba(255,213,77,.05));
       border:1px solid rgba(255,213,77,.25);
       box-shadow: inset 0 0 18px rgba(255,213,77,.25), 0 6px 24px rgba(0,0,0,.6);
     }
 
-    /* ====== Blinds Reveal Overlay (per Section) ====== */
+    /* ====== Blinds‑Reveal je Section ====== */
     .with-blinds { position: relative; overflow: clip }
     .blinds {
       position:absolute; inset:-1px; display:grid; grid-template-rows: repeat(var(--rows, 14), 1fr); gap: var(--gap, 6px);
-      background: #000; z-index: 2; pointer-events:none;
-      /* start visible */ opacity:1;
+      background: #000; z-index: 2; pointer-events:none; opacity:1;
     }
     .blind { background: #010101; border-radius: 6px; filter: drop-shadow(0 1px 0 rgba(255,255,255,.03)); transform-origin: top; transform: scaleY(1) }
     .blinds.off { animation: blindsOpen .9s cubic-bezier(.22,.61,.36,1) forwards }
     @keyframes blindsOpen { to { opacity:0 } }
-
-    /* each slat folds upward slightly for realism */
-    .blind.anim { animation: slat 900ms cubic-bezier(.22,.61,.36,1) forwards; }
+    .blind.anim { animation: slat 900ms cubic-bezier(.22,.61,.36,1) forwards }
     @keyframes slat { 0%{ transform: scaleY(1) } 100%{ transform: scaleY(0) } }
 
-    /* ====== Packages ====== */
+    /* Preise */
     .prices { display:grid; gap:18px; grid-template-columns: repeat(12, 1fr) }
     .price { grid-column: span 3; background: linear-gradient(180deg, #0f1012, #0c0d0f); border:1px solid var(--stroke); border-radius: 18px; padding: 22px; position:relative; overflow: hidden }
     .price h3 { margin:0 0 6px }
@@ -157,38 +197,30 @@
     @media (max-width: 1024px){ .price { grid-column: span 6 } }
     @media (max-width: 700px){ .price { grid-column: span 12 } }
 
-    /* ====== Kontakt ====== */
+    /* Kontakt */
     form { display:grid; gap:12px }
     input, select, textarea { width:100%; background:#0d0e11; border:1px solid var(--stroke); color:var(--fg); padding:12px 14px; border-radius:12px }
     label { font-size:14px; color:#c9cacf }
 
-    /* ====== Footer ====== */
+    /* Footer */
     footer { color:#9ea2a8; font-size:13px; padding: 28px 0 48px; border-top:1px solid var(--stroke) }
 
-    /* ====== Utility ====== */
-    .center { text-align:center }
-    .space { height: 24px }
-
-    /* ====== Reduced Motion ====== */
+    /* Reduced Motion */
     @media (prefers-reduced-motion: reduce){
       * { animation: none !important; transition: none !important }
-      .nav a::after { display:none }
       .boot, .blinds { display:none }
     }
   </style>
 </head>
 <body class="vignette">
-  <!-- Initial Darkness Screen -->
-  <div class="boot" id="boot">
-    <div class="boot__hint">Systeme starten …</div>
-  </div>
+  <!-- Initial Schwarzbild -->
+  <div class="boot" id="boot"></div>
 
-  <!-- NAVBAR -->
+  <!-- NAVBAR (Texte & Struktur aus Demo) -->
   <div class="navwrap">
     <div class="container">
       <nav aria-label="Hauptnavigation">
         <div class="brand">
-          <!-- Minimales Smart‑Home Logo -->
           <svg viewBox="0 0 48 48" aria-hidden="true" fill="none">
             <path d="M6 22 L24 8 L42 22" stroke="#ffd54d" stroke-width="2.5" stroke-linecap="round"/>
             <rect x="14" y="22" width="20" height="16" rx="4" stroke="#8fb7ff" stroke-width="2"/>
@@ -197,10 +229,9 @@
           <span>Smart Home Trier</span>
         </div>
         <div class="nav" id="navlinks">
-          <a href="#home">Start</a>
           <a href="#about">Über uns</a>
           <a href="#services">Leistungen</a>
-          <a href="#pricing">Pakete</a>
+          <a href="#pricing">Pakete & Preise</a>
           <a href="#trial">Test‑Drive</a>
           <a href="#contact">Kontakt</a>
           <a href="#contact" class="cta">Beratung vereinbaren</a>
@@ -209,183 +240,193 @@
     </div>
   </div>
 
-  <!-- HERO -->
+  <!-- HERO (Texte aus Demo) -->
   <header id="home" class="section hero with-blinds">
     <div class="blinds" data-rows="16"></div>
     <div class="container frame" data-frame>
       <div class="container" style="padding: clamp(32px, 6vw, 64px) 0;">
-        <h1>Smart Home in Rheinland‑Pfalz — Komfort, Sicherheit & Ersparnis in einem System</h1>
-        <p>Wir verwandeln Ihr Zuhause: von Licht & Heizung bis hin zu Video‑Überwachung und Automationen.</p>
+        <h1>Smarter Wohnkomfort – Licht, Klima & Sicherheit in einem System</h1>
+        <p class="muted">Wir verwandeln Ihr Zuhause in einen intelligenten Raum: von Beleuchtung und Heizung bis zu Kameras, Sensoren und Sprachsteuerung.</p>
         <a href="#contact" class="cta">Beratung vereinbaren</a>
       </div>
     </div>
   </header>
 
-  <!-- FEATURES / BENEFITS -->
-  <section class="section with-blinds" aria-labelledby="why">
+  <!-- ÜBER UNS (Texte aus Demo) -->
+  <section id="about" class="section with-blinds" aria-labelledby="aboutH">
     <div class="blinds" data-rows="14" style="--gap:8px"></div>
     <div class="container">
-      <h2 id="about" id="why" class="center" style="margin:0 0 22px">Warum Smart Home?</h2>
+      <h2 id="aboutH" class="center" style="margin:0 0 22px">Wer wir sind – und warum man uns vertraut</h2>
       <div class="grid">
         <div class="col-6">
-          <div class="frame" data-frame>
-            <div class="grid" style="padding:24px">
-              <div class="col-6"><div class="card"><div class="ico">💡</div><h3>Komfort</h3><p class="muted">Steuern Sie Ihr Zuhause per App oder Sprache.</p></div></div>
-              <div class="col-6"><div class="card"><div class="ico">💶</div><h3>Ersparnis</h3><p class="muted">Bis zu 30 % weniger Strom‑ & Heizkosten.</p></div></div>
-              <div class="col-6"><div class="card"><div class="ico">🛡️</div><h3>Sicherheit</h3><p class="muted">Kameras, Sensoren & Alarme unter Ihrer Kontrolle.</p></div></div>
-              <div class="col-6"><div class="card"><div class="ico">⚙️</div><h3>Flexibilität</h3><p class="muted">Szenen, Routinen & Automationen für Ihren Alltag.</p></div></div>
+          <div class="frame" data-frame style="padding:24px">
+            <h3 style="margin:0 0 8px">Über uns</h3>
+            <p class="muted" style="margin:0 0 10px">Wir sind Spezialisten für Smart‑Home‑Installationen in Trier & Rheinland‑Pfalz. Wir setzen auf geprüfte Marken wie Philips Hue, Sonoff, Meross, Aqara, Netatmo und Tado.</p>
+            <div class="grid" style="grid-template-columns:1fr 1fr; gap:12px; margin-top:10px">
+              <div class="card"><strong>Beratung & Planung</strong><p class="muted">Individuell, herstellerunabhängig, skalierbar.</p></div>
+              <div class="card"><strong>Installation vor Ort</strong><p class="muted">Sauber, sicher und normgerecht.</p></div>
+              <div class="card"><strong>Schulung & Support</strong><p class="muted">Einrichtung, Szenen, 24/7‑Unterstützung.</p></div>
+              <div class="card"><strong>Transparente Preise</strong><p class="muted">Klare Pakete & Optionen.</p></div>
             </div>
           </div>
         </div>
         <div class="col-6">
-          <div class="frame" data-frame style="padding:24px">
-            <h3 style="margin:0 0 8px">Wer wir sind</h3>
-            <p class="muted" style="margin:0 0 10px">Wir sind Spezialisten für Smart‑Home‑Systeme in Trier & Rheinland‑Pfalz. Wir installieren Lösungen, die Ihr Leben bequemer, sicherer und energieeffizienter machen.</p>
-            <p class="muted">Wir arbeiten mit bewährten Marken: Philips Hue, Sonoff, Meross, Aqara, Netatmo, Tado u. a.</p>
+          <div class="frame" data-frame>
+            <div class="grid" style="padding:24px">
+              <div class="col-6"><div class="card"><div class="ico">💡</div><h3>Komfort</h3><p class="muted">Steuern per App oder Stimme</p></div></div>
+              <div class="col-6"><div class="card"><div class="ico">💶</div><h3>Ersparnis</h3><p class="muted">Bis zu 30% weniger Energie</p></div></div>
+              <div class="col-6"><div class="card"><div class="ico">🛡️</div><h3>Sicherheit</h3><p class="muted">Kameras, Sensoren, Alarme</p></div></div>
+              <div class="col-6"><div class="card"><div class="ico">🔁</div><h3>Automationen</h3><p class="muted">„Ich bin weg“, „Guten Morgen“</p></div></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
+  <!-- LEISTUNGEN (Texte aus Demo) -->
   <section id="services" class="section with-blinds" aria-labelledby="srv">
     <div class="blinds" data-rows="16"></div>
     <div class="container">
       <h2 id="srv" class="center" style="margin:0 0 24px">Was wir installieren</h2>
       <div class="grid">
-        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🔦</div><h3>Smartes Licht</h3><p class="muted">App‑Steuerung, Szenen, Bewegungsmelder.</p></div></div></div>
-        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🌡️</div><h3>Klima & Heizung</h3><p class="muted">Automatische Regelung von Heizung & Klima.</p></div></div></div>
-        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">📹</div><h3>Sicherheit</h3><p class="muted">Kameras, Alarme, Tür‑/Fenster‑ & Bewegungs‑Sensoren.</p></div></div></div>
-        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🏠</div><h3>Haus‑Automationen</h3><p class="muted">Szenen: „Ich bin weg“, „Guten Morgen“ u. v. m.</p></div></div></div>
-        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🎙️</div><h3>Sprachsteuerung</h3><p class="muted">Integration mit Alexa, Google Home, HomeKit.</p></div></div></div>
-        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🚪</div><h3>Video‑Tür & Zugang</h3><p class="muted">Schlösser & Türen per Smartphone steuern.</p></div></div></div>
+        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🔦</div><h3>Smartes Licht</h3><p class="muted">Szenen, Bewegungsmelder, Präsenz.</p></div></div></div>
+        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🌡️</div><h3>Klima & Heizung</h3><p class="muted">Thermostate, Pläne, Effizienz.</p></div></div></div>
+        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">📹</div><h3>Sicherheits­systeme</h3><p class="muted">Kameras, Alarme, Benachrichtigungen.</p></div></div></div>
+        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">⚙️</div><h3>Automationen</h3><p class="muted">Wenn‑dann‑Logik, Geofencing.</p></div></div></div>
+        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🎙️</div><h3>Sprachsteuerung</h3><p class="muted">Alexa, Google, HomeKit.</p></div></div></div>
+        <div class="col-4"><div class="frame" data-frame><div class="card"><div class="ico">🚪</div><h3>Video & Zutritt</h3><p class="muted">Türsprechanlagen, smarte Schlösser.</p></div></div></div>
       </div>
     </div>
   </section>
 
-  <!-- PRICING -->
+  <!-- PAKETE & PREISE (Texte aus Demo) -->
   <section id="pricing" class="section with-blinds" aria-labelledby="price">
     <div class="blinds" data-rows="14"></div>
     <div class="container">
-      <h2 id="price" class="center" style="margin:0 0 14px">Fertige Lösungen für jedes Budget</h2>
-      <p class="center muted" style="margin:0 0 22px">Preis inkl. Geräte + Basis‑Installation. Individuelle Lösungen auf Anfrage.</p>
+      <h2 id="price" class="center" style="margin:0 0 14px">Pakete & Preise</h2>
+      <p class="center muted" style="margin:0 0 22px">Fix & fair – maßgeschneidert erweiterbar. Preise inkl. Basis‑Installation. Individuelle Lösungen auf Anfrage.</p>
       <div class="prices">
         <article class="price frame" data-frame>
-          <span class="tag">Beliebt</span>
+          <span class="tag">ab 199 €</span>
           <h3>Start</h3>
-          <p class="muted">2 smarte Lampen, 1 smarte Steckdose, App‑Steuerung</p>
+          <p class="muted">2 smarte Lampen, 1 Steckdose, App‑Steuerung</p>
           <ul>
-            <li>Installation & Einweisung</li>
-            <li>Basis‑Automationen</li>
+            <li>Schnelle Inbetriebnahme</li>
+            <li>iOS/Android fähig</li>
           </ul>
-          <div class="amount">ab 199 €</div>
         </article>
         <article class="price frame" data-frame>
+          <span class="tag">ab 499 €</span>
           <h3>Komfort</h3>
-          <p class="muted">Licht (4 Zonen), 2 Thermostate, Szenen & Bewegung</p>
+          <p class="muted">Licht (4 Zonen), 2 Thermostate, Bewegungsmelder</p>
           <ul>
-            <li>Erweiterte Automationen</li>
-            <li>App‑Profile für Familie</li>
+            <li>Szenen & Zeitpläne</li>
+            <li>Energiereports</li>
           </ul>
-          <div class="amount">ab 499 €</div>
         </article>
         <article class="price frame" data-frame>
+          <span class="tag">ab 699 €</span>
           <h3>Sicherheit</h3>
-          <p class="muted">2 Kameras, Bewegungs‑Sensoren, Alarm, Remote‑Zugriff</p>
+          <p class="muted">2 Kameras, Sensoren, Alarm, Fernzugriff</p>
           <ul>
             <li>Push‑Benachrichtigungen</li>
-            <li>Sicherheits‑Szenen</li>
+            <li>Verschlüsselter Zugriff</li>
           </ul>
-          <div class="amount">ab 699 €</div>
         </article>
         <article class="price frame" data-frame>
-          <span class="tag">Max</span>
+          <span class="tag">ab 1.199 €</span>
           <h3>Maximum</h3>
           <p class="muted">Licht, Klima, Sicherheit, Sprache, 10+ Geräte</p>
           <ul>
-            <li>Individuelle Planung</li>
-            <li>On‑Site‑Optimierung</li>
+            <li>Volle Automationen</li>
+            <li>Individuelle Szenarien</li>
           </ul>
-          <div class="amount">ab 1199 €</div>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- TRIAL -->
+  <!-- TEST‑DRIVE (Text aus Demo) -->
   <section id="trial" class="section with-blinds" aria-labelledby="trialh">
     <div class="blinds" data-rows="12"></div>
     <div class="container frame" data-frame style="padding: clamp(24px,4vw,40px)">
-      <h2 id="trialh" class="center" style="margin:0 0 10px">Testen Sie Smart Home 7 Tage kostenlos!</h2>
-      <p class="center muted" style="margin:0 0 16px">Wir montieren ein Test‑Set bei Ihnen zuhause. Nutzen Sie es eine Woche und entscheiden Sie, was bleibt. Pfand: 50 € (wird erstattet oder verrechnet).</p>
-      <p class="center"><a href="#contact" class="cta">Test‑Termin buchen</a></p>
+      <h2 id="trialh" class="center" style="margin:0 0 10px">Testen Sie Smart Home 7 Tage kostenlos</h2>
+      <p class="center muted" style="margin:0 0 16px">Wir installieren ein Demo‑Set bei Ihnen zu Hause. Entscheiden Sie danach, was bleibt. Kaution: 50 € (wird erstattet oder verrechnet).</p>
+      <p class="center"><a href="#contact" class="cta">Jetzt Test buchen</a></p>
     </div>
   </section>
 
-  <!-- WHY US -->
-  <section class="section with-blinds" aria-labelledby="whyus">
+  <!-- WARUM WIR (Texte aus Demo) -->
+  <section id="why" class="section with-blinds" aria-labelledby="whyus">
     <div class="blinds" data-rows="14"></div>
     <div class="container">
-      <h2 id="whyus" class="center" style="margin:0 0 24px">Warum wir?</h2>
+      <h2 id="whyus" class="center" style="margin:0 0 24px">Warum Kunden uns wählen</h2>
       <div class="grid">
-        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>Offiziell & mit Garantie</h3><p class="muted">Transparente Angebote und volle Gewährleistung.</p></div></div></div>
-        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>5+ Jahre Erfahrung</h3><p class="muted">Professionelle Installation und sauberes Setup.</p></div></div></div>
-        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>24/7 Support</h3><p class="muted">Schnelle Hilfe – auch per Remote.</p></div></div></div>
-        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>Kostenlose Beratung</h3><p class="muted">Wir planen mit Ihnen die beste Lösung für Ihr Zuhause.</p></div></div></div>
+        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>5+ Jahre Erfahrung</h3><p class="muted">Technik, die einfach funktioniert.</p></div></div></div>
+        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>Transparente Preise</h3><p class="muted">Klare Pakete & Optionen.</p></div></div></div>
+        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>24/7 Support</h3><p class="muted">Wenn es zählt, sind wir da.</p></div></div></div>
+        <div class="col-6"><div class="frame" data-frame><div class="card"><h3>Kostenlose Beratung</h3><p class="muted">Ersttermin ohne Risiko.</p></div></div></div>
       </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- KONTAKT (angepasst an Demo‑Formulierungen) -->
   <section id="contact" class="section with-blinds" aria-labelledby="contacth">
     <div class="blinds" data-rows="12"></div>
     <div class="container">
       <div class="grid">
         <div class="col-6">
           <div class="frame" data-frame style="padding:22px">
-            <h2 id="contacth" style="margin:0 0 6px">Online‑Termin</h2>
-            <p class="muted" style="margin:0 0 10px">Hinterlassen Sie Ihre Kontaktdaten – wir melden uns zur Bestätigung.</p>
+            <h2 id="contacth" style="margin:0 0 6px">Online‑Termin / Kontakt</h2>
+            <p class="muted" style="margin:0 0 10px">Wir melden uns schnellstmöglich zurück.</p>
             <form id="form">
-              <div>
-                <label for="name">Name</label>
-                <input id="name" name="name" placeholder="Ihr Name" required />
+              <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px">
+                <div>
+                  <label for="name">Name</label>
+                  <input id="name" name="name" placeholder="Max Mustermann" required />
+                </div>
+                <div>
+                  <label for="contactField">Telefon oder E‑Mail</label>
+                  <input id="contactField" name="contact" placeholder="+49 … / name@mail.de" required />
+                </div>
               </div>
               <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px">
                 <div>
-                  <label for="phone">Telefon</label>
-                  <input id="phone" name="phone" placeholder="+49" />
+                  <label for="address">Adresse (optional)</label>
+                  <input id="address" name="address" placeholder="Straße, Nr., Ort" />
                 </div>
-                <div>
-                  <label for="email">E‑Mail</label>
-                  <input id="email" name="email" type="email" placeholder="name@example.com" required />
-                </div>
-              </div>
-              <div>
-                <label for="address">Adresse (optional)</label>
-                <input id="address" name="address" placeholder="Straße, Ort" />
-              </div>
-              <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px">
                 <div>
                   <label for="service">Leistung / Paket</label>
                   <select id="service" name="service">
-                    <option>Beratung</option>
+                    <option>Smartes Licht</option>
+                    <option>Klima & Heizung</option>
+                    <option>Sicherheit</option>
+                    <option>Automationen</option>
+                    <option>Sprachsteuerung</option>
+                    <option>Video & Zutritt</option>
                     <option>Start</option>
                     <option>Komfort</option>
-                    <option>Sicherheit</option>
+                    <option>Sicherheit (Paket)</option>
                     <option>Maximum</option>
                   </select>
                 </div>
+              </div>
+              <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px">
                 <div>
                   <label for="date">Wunschtermin</label>
-                  <input id="date" name="date" type="datetime-local" />
+                  <input id="date" name="date" type="date" />
+                </div>
+                <div>
+                  <label for="time">Uhrzeit</label>
+                  <input id="time" name="time" type="time" />
                 </div>
               </div>
               <div>
                 <label for="msg">Nachricht</label>
                 <textarea id="msg" name="msg" rows="4" placeholder="Kurz Ihr Anliegen…"></textarea>
               </div>
-              <button class="cta" type="submit">Absenden</button>
+              <button class="cta" type="submit">Anfrage senden</button>
               <div id="formok" class="muted" style="display:none; margin-top:8px">Danke! Wir haben Ihre Anfrage erhalten.</div>
             </form>
           </div>
@@ -394,7 +435,7 @@
           <div class="frame" data-frame style="padding:22px">
             <h2 style="margin:0 0 6px">Kontakt</h2>
             <p class="muted">📍 Trier, Rheinland‑Pfalz<br/>📞 +49 XXX XXX XXX<br/>✉ info@smarthome‑trier.de</p>
-            <div class="space"></div>
+            <div class="space" style="height:24px"></div>
             <h3 style="margin:0 0 6px">Test‑Drive</h3>
             <p class="muted">Pfand: 50 € – wird erstattet oder beim Kauf angerechnet.</p>
           </div>
@@ -406,78 +447,51 @@
   <footer>
     <div class="container">
       <div class="grid">
-        <div class="col-6">© <span id="y"></span> Smart Home Trier</div>
+        <div class="col-6">© <span id="y"></span> Smart Home Rheinland‑Pfalz</div>
         <div class="col-6" style="text-align:right">Impressum · Datenschutz</div>
       </div>
     </div>
   </footer>
 
   <script>
-    // ===== Helper: create blinds per section with slight randomness =====
+    // Jahr
+    const y = document.getElementById('y'); if(y) y.textContent = new Date().getFullYear();
+
+    // Blinds je Section mit leichter Varianz
     function initBlinds() {
       document.querySelectorAll('.blinds').forEach((wrap) => {
         const rows = parseInt(wrap.getAttribute('data-rows')) || 14;
         wrap.style.setProperty('--rows', rows);
-        // create slats
         for (let i = 0; i < rows; i++) {
           const d = document.createElement('div');
           d.className = 'blind';
-          // slight random darkness for realism
           d.style.background = `rgb(${1 + Math.floor(Math.random()*4)}, ${1 + Math.floor(Math.random()*4)}, ${1 + Math.floor(Math.random()*4)})`;
           wrap.appendChild(d);
         }
       })
     }
 
-    // ===== Boot sequence: black screen -> navbar links light on (desktop) or brand sweep (mobile) =====
-    function bootSequence() {
+    // Boot: Nur schwarzes Overlay weich ausblenden (keine Nav‑Sweep‑Show)
+    function bootFade() {
       const boot = document.getElementById('boot');
-      const isMobile = window.matchMedia('(max-width: 820px)').matches;
-      if (isMobile) {
-        // Mobile: navbar hidden — do a subtle sweep on the brand text instead
-        const brandText = document.querySelector('.brand span');
-        if (brandText) {
-          brandText.classList.add('sweep');
-          setTimeout(() => brandText.classList.remove('sweep'), 1200);
-        }
-      } else {
-        // Desktop: keep the staggered light-on for nav links
-        const navLinks = Array.from(document.querySelectorAll('.nav a'));
-        navLinks.forEach((a, i) => {
-          setTimeout(() => {
-            a.classList.add('on', 'sweep');
-            setTimeout(() => a.classList.remove('sweep'), 1200);
-          }, 300 + i * 140);
-        });
-      }
-      // Fade out boot darkness
-      setTimeout(() => {
-        if (boot) {
-          boot.style.opacity = '0';
-          boot.style.visibility = 'hidden';
-        }
-      }, isMobile ? 900 : 1400);
+      setTimeout(()=>{ if(boot){ boot.style.opacity = '0'; boot.style.visibility = 'hidden'; } }, 900);
     }
 
-    // ===== Intersection: open blinds + light frame glow =====
+    // Intersection: Blinds öffnen + Rahmen‑Glow
     function initObservers(){
       const io = new IntersectionObserver((entries)=>{
         entries.forEach(entry=>{
           if(entry.isIntersecting){
-            // open blinds
             const blinds = entry.target.querySelector('.blinds');
             if(blinds && !blinds.classList.contains('off')){
               const slats = blinds.querySelectorAll('.blind');
-              // stagger slat fold
               slats.forEach((s, i)=>{
                 s.classList.add('anim');
                 s.style.animationDelay = (i * 14 + Math.random()*60) + 'ms';
               });
               blinds.classList.add('off');
-              // remove node after animation to enable interactions
               setTimeout(()=> blinds.remove(), 1100);
             }
-            // frame glow
             entry.target.querySelectorAll('[data-frame]').forEach(f => f.classList.add('lit'))
             io.unobserve(entry.target);
           }
@@ -487,7 +501,7 @@
       document.querySelectorAll('.with-blinds, section.with-blinds').forEach(s => io.observe(s));
     }
 
-    // ===== Smooth anchor scroll =====
+    // Smooth Anchors
     function smoothAnchors(){
       document.querySelectorAll('a[href^="#"]').forEach(a=>{
         a.addEventListener('click', (e)=>{
@@ -498,7 +512,7 @@
       })
     }
 
-    // ===== Form demo (no backend yet) =====
+    // Form Demo
     function formDemo(){
       const f = document.getElementById('form');
       const ok = document.getElementById('formok');
@@ -509,51 +523,12 @@
       })
     }
 
-    // ===== Simple runtime tests (smoke tests) =====
-    function runTests(){
-      const results = [];
-      const pass = (name, cond) => results.push({ name, ok: !!cond });
-      const isMobile = window.matchMedia('(max-width: 820px)').matches;
-      try { pass('bootSequence is function', typeof bootSequence === 'function'); } catch(e){ pass('bootSequence is function', false) }
-      try { bootSequence(); pass('bootSequence executes without throw', true); } catch(e){ pass('bootSequence executes without throw', false) }
-
-      if(!isMobile){
-        pass('nav links exist', document.querySelectorAll('.nav a').length > 0);
-        setTimeout(()=>{
-          const first = document.querySelector('.nav a');
-          pass('nav first link became visible (.on)', first && first.classList.contains('on'));
-          pass('boot overlay hidden', document.getElementById('boot') && document.getElementById('boot').style.visibility === 'hidden');
-          console.table(results);
-        }, 2000);
-      } else {
-        const brand = document.querySelector('.brand span');
-        pass('mobile brand exists', !!brand);
-        setTimeout(()=>{
-          pass('boot overlay hidden', document.getElementById('boot') && document.getElementById('boot').style.visibility === 'hidden');
-          console.table(results);
-        }, 1200);
-      }
-    }
-
-    // ===== Init =====
     window.addEventListener('DOMContentLoaded', ()=>{
-      const y = document.getElementById('y'); if(y) y.textContent = new Date().getFullYear();
       initBlinds();
-      bootSequence();
+      bootFade();
       initObservers();
       smoothAnchors();
       formDemo();
-
-      // Hover re‑sweep on demand (desktop only visually)
-      document.querySelectorAll('.nav a').forEach(a=>{
-        a.addEventListener('mouseenter', ()=>{
-          a.classList.add('sweep');
-          setTimeout(()=> a.classList.remove('sweep'), 1200);
-        })
-      })
-
-      // Run smoke tests in console
-      runTests();
     })
   </script>
 </body>
